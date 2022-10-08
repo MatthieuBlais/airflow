@@ -14,6 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+from __future__ import annotations
 
 import unittest
 
@@ -672,6 +673,24 @@ class SchedulerTest(unittest.TestCase):
             show_only=["templates/scheduler/scheduler-deployment.yaml"],
         )
         assert {"foo": "bar"} == jmespath.search("spec.volumeClaimTemplates[0].metadata.annotations", docs[0])
+
+    @parameterized.expand(
+        [
+            "LocalExecutor",
+            "LocalKubernetesExecutor",
+            "CeleryExecutor",
+            "KubernetesExecutor",
+            "CeleryKubernetesExecutor",
+        ]
+    )
+    def test_scheduler_deployment_has_executor_label(self, executor):
+        docs = render_chart(
+            values={"executor": executor},
+            show_only=["templates/scheduler/scheduler-deployment.yaml"],
+        )
+
+        assert 1 == len(docs)
+        assert executor == docs[0]['metadata']['labels'].get('executor')
 
 
 class SchedulerNetworkPolicyTest(unittest.TestCase):

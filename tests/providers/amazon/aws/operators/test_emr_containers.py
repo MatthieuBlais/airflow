@@ -14,6 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+from __future__ import annotations
 
 import unittest
 from unittest import mock
@@ -21,7 +22,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from airflow import configuration
+from airflow.configuration import conf
 from airflow.exceptions import AirflowException
 from airflow.providers.amazon.aws.hooks.emr import EmrContainerHook
 from airflow.providers.amazon.aws.operators.emr import EmrContainerOperator, EmrEksCreateClusterOperator
@@ -40,7 +41,7 @@ GENERATED_UUID = '800647a9-adda-4237-94e6-f542c85fa55b'
 class TestEmrContainerOperator(unittest.TestCase):
     @mock.patch('airflow.providers.amazon.aws.hooks.emr.EmrContainerHook')
     def setUp(self, emr_hook_mock):
-        configuration.load_test_config()
+        conf.load_test_config()
 
         self.emr_hook_mock = emr_hook_mock
         self.emr_container = EmrContainerOperator(
@@ -129,7 +130,7 @@ class TestEmrContainerOperator(unittest.TestCase):
             job_driver={},
             configuration_overrides={},
             poll_interval=0,
-            max_tries=3,
+            max_polling_attempts=3,
         )
 
         with patch('boto3.session.Session', boto3_session_mock):
@@ -144,7 +145,7 @@ class TestEmrContainerOperator(unittest.TestCase):
 class TestEmrEksCreateClusterOperator(unittest.TestCase):
     @mock.patch('airflow.providers.amazon.aws.hooks.emr.EmrContainerHook')
     def setUp(self, emr_hook_mock):
-        configuration.load_test_config()
+        conf.load_test_config()
 
         self.emr_hook_mock = emr_hook_mock
         self.emr_container = EmrEksCreateClusterOperator(
